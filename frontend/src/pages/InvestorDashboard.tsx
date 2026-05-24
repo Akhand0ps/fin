@@ -149,7 +149,7 @@ export const InvestorDashboard: React.FC = () => {
     );
   }
 
-  const filteredStartups = startups.filter(s =>
+  const filteredStartups = startups.filter((s: Startup) =>
     s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (s.industry && s.industry.toLowerCase().includes(searchQuery.toLowerCase()))
   );
@@ -208,7 +208,7 @@ export const InvestorDashboard: React.FC = () => {
           </header>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {filteredStartups.map((startup, i) => (
+            {filteredStartups.map((startup: Startup, i: number) => (
               <motion.div
                 key={startup.id}
                 initial={{ opacity: 0, y: 20 }}
