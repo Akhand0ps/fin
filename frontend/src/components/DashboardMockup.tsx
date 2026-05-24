@@ -35,6 +35,7 @@ export const DashboardMockup: React.FC = () => {
     { name: 'Enterprise Sale', date: 'Yesterday', amount: '+$45,000', type: 'revenue' },
   ];
 
+  
   return (
     <div className="w-full bg-white rounded-[2.5rem] border border-neutral-200 shadow-2xl overflow-hidden flex h-[500px] md:h-[600px] text-left relative">
       {/* Mini Sidebar - Hidden on mobile/tablet screens */}
