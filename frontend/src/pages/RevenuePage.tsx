@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DashboardShell } from '../components/DashboardShell';
 import { Card, CardContent, CardHeader } from '../components/Card';
@@ -25,6 +25,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Skeleton } from '../components/Skeleton';
 import { Modal } from '../components/Modal';
+import { CurrencySelector } from '../components/CurrencySelector';
 
 const revenueSchema = z.object({
   category: z.string({ error: "Please specify the revenue source" }).min(1, 'Please specify the revenue source'),
@@ -52,11 +53,17 @@ export const RevenuePage: React.FC = () => {
     resolver: zodResolver(revenueSchema),
     defaultValues: {
       date: new Date().toISOString().split('T')[0],
-      currency: startups[0]?.currency || 'USD'
+      currency: 'USD'
     }
   });
 
   const selectedCurrency = watch('currency');
+
+  useEffect(() => {
+    if (startups.length > 0 && startups[0].currency) {
+      setValue('currency', startups[0].currency as 'USD' | 'INR');
+    }
+  }, [startups, setValue]);
 
   // Fetch Revenue
   const { data: revenues = [], isLoading } = useQuery({
@@ -264,26 +271,11 @@ export const RevenuePage: React.FC = () => {
             />
           </div>
           <div className="grid grid-cols-1 gap-6">
-            <div className="space-y-3">
-              <label className="block text-xs font-bold text-neutral-400 uppercase tracking-widest">Currency</label>
-              <div className="grid grid-cols-2 gap-3">
-                {['USD', 'INR'].map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => setValue('currency', c as 'USD' | 'INR')}
-                    className={cn(
-                      "px-4 py-3 rounded-xl border text-xs font-bold transition-all duration-200 cursor-pointer",
-                      selectedCurrency === c 
-                        ? "bg-neutral-900 border-neutral-900 text-white shadow-lg" 
-                        : "bg-neutral-50 border-neutral-100 text-neutral-500 hover:border-neutral-200"
-                    )}
-                  >
-                    {c}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <CurrencySelector
+              startupCurrency={startups[0]?.currency as 'USD' | 'INR' | undefined}
+              selectedCurrency={selectedCurrency}
+              onSelect={(c) => setValue('currency', c)}
+            />
             <FormInput
               control={control}
               name="date"

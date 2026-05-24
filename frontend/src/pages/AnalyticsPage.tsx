@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../store/authStore';
 import { analyticsService } from '../services/analyticsService';
 import type { AnalyticsSummary, ChartData } from '../services/analyticsService';
@@ -26,64 +27,60 @@ import { Skeleton } from '../components/Skeleton';
 
 export const AnalyticsPage: React.FC = () => {
   const { user } = useAuthStore();
-  const [summary, setSummary] = useState<AnalyticsSummary | null>(null);
-  const [chartData, setChartData] = useState<ChartData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [currency, setCurrency] = useState('USD');
-  const [hasStartup, setHasStartup] = useState(true);
-  const [revenueMix, setRevenueMix] = useState<{ label: string, value: number, color: string }[]>([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const startups = await startupService.getAll();
-        if (startups.length > 0) {
-          setHasStartup(true);
-          const startupId = startups[0].id;
-          const [summaryData, chart, transactions] = await Promise.all([
-            analyticsService.getSummary(startupId),
-            analyticsService.getChartData(startupId),
-            transactionService.getAll({ startup_id: startupId, type: 'revenue' })
-          ]);
-          setSummary(summaryData);
-          setChartData(chart);
-          setCurrency(startups[0].currency || 'USD');
-
-          // Calculate Revenue Mix
-          if (transactions.length > 0) {
-            const totalsByCategory: Record<string, number> = {};
-            let totalAmount = 0;
-            
-            transactions.forEach(tx => {
-              const amount = Number(tx.amount);
-              totalsByCategory[tx.category] = (totalsByCategory[tx.category] || 0) + amount;
-              totalAmount += amount;
-            });
-
-            const mix = Object.entries(totalsByCategory)
-              .map(([label, amount]) => ({
-                label,
-                value: Math.round((amount / totalAmount) * 100),
-                color: 'bg-neutral-900' // We can rotate colors or just use consistent neutral shades
-              }))
-              .sort((a, b) => b.value - a.value)
-              .slice(0, 5); // Top 5 categories
-
-            // Apply different shades for visual distinction
-            const shades = ['bg-neutral-900', 'bg-neutral-600', 'bg-neutral-400', 'bg-neutral-200', 'bg-neutral-100'];
-            setRevenueMix(mix.map((item, i) => ({ ...item, color: shades[i % shades.length] })));
-          }
-        } else {
-          setHasStartup(false);
-        }
-      } catch (error) {
-        console.error('Failed to fetch analytics:', error);
-      } finally {
-        setLoading(false);
+  const { data: analyticsData, isLoading: loading } = useQuery({
+    queryKey: ['analytics-page'],
+    queryFn: async () => {
+      const startups = await startupService.getAll();
+      if (startups.length === 0) {
+        return { hasStartup: false, summary: null, chartData: [], currency: 'USD', revenueMix: [] };
       }
-    };
-    fetchData();
-  }, []);
+      
+      const startupId = startups[0].id;
+      const [summaryData, chart, transactions] = await Promise.all([
+        analyticsService.getSummary(startupId),
+        analyticsService.getChartData(startupId),
+        transactionService.getAll({ startup_id: startupId, type: 'revenue' })
+      ]);
+      
+      let revenueMix: { label: string, value: number, color: string }[] = [];
+      if (transactions.length > 0) {
+        const totalsByCategory: Record<string, number> = {};
+        let totalAmount = 0;
+        
+        transactions.forEach(tx => {
+          const amount = Number(tx.amount);
+          totalsByCategory[tx.category] = (totalsByCategory[tx.category] || 0) + amount;
+          totalAmount += amount;
+        });
+
+        const mix = Object.entries(totalsByCategory)
+          .map(([label, amount]) => ({
+            label,
+            value: Math.round((amount / totalAmount) * 100),
+            color: 'bg-neutral-900'
+          }))
+          .sort((a, b) => b.value - a.value)
+          .slice(0, 5);
+
+        const shades = ['bg-neutral-900', 'bg-neutral-600', 'bg-neutral-400', 'bg-neutral-200', 'bg-neutral-100'];
+        revenueMix = mix.map((item, i) => ({ ...item, color: shades[i % shades.length] }));
+      }
+      
+      return {
+        hasStartup: true,
+        summary: summaryData,
+        chartData: chart,
+        currency: startups[0].currency || 'USD',
+        revenueMix
+      };
+    }
+  });
+
+  const hasStartup = analyticsData?.hasStartup ?? true;
+  const summary = analyticsData?.summary ?? null;
+  const chartData = analyticsData?.chartData ?? [];
+  const currency = analyticsData?.currency ?? 'USD';
+  const revenueMix = analyticsData?.revenueMix ?? [];
 
   if (loading) {
     return (

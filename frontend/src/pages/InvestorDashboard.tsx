@@ -85,27 +85,19 @@ export const InvestorDashboard: React.FC = () => {
     },
   ];
 
-  const [startups, setStartups] = useState<Startup[]>([]);
-  const [portfolio, setPortfolio] = useState<Startup[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: dashboardData, isLoading: loading } = useQuery({
+    queryKey: ['investor-dashboard'],
+    queryFn: async () => {
+      const [allStartups, myPortfolio] = await Promise.all([
+        apiClient.get('/investments/discovery').then(res => res.data.data),
+        investmentService.getPortfolio()
+      ]);
+      return { startups: allStartups, portfolio: myPortfolio };
+    }
+  });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [allStartups, myPortfolio] = await Promise.all([
-          apiClient.get('/investments/discovery').then(res => res.data.data),
-          investmentService.getPortfolio()
-        ]);
-        setStartups(allStartups);
-        setPortfolio(myPortfolio);
-      } catch (error) {
-        console.error('Failed to fetch investor data', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+  const startups = dashboardData?.startups ?? [];
+  const portfolio = dashboardData?.portfolio ?? [];
 
   if (loading) {
     return (
@@ -157,7 +149,7 @@ export const InvestorDashboard: React.FC = () => {
     );
   }
 
-  const filteredStartups = startups.filter(s =>
+  const filteredStartups = startups.filter((s: Startup) =>
     s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (s.industry && s.industry.toLowerCase().includes(searchQuery.toLowerCase()))
   );
@@ -216,7 +208,7 @@ export const InvestorDashboard: React.FC = () => {
           </header>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {filteredStartups.map((startup, i) => (
+            {filteredStartups.map((startup: Startup, i: number) => (
               <motion.div
                 key={startup.id}
                 initial={{ opacity: 0, y: 20 }}

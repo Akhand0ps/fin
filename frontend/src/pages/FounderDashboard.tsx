@@ -124,7 +124,17 @@ export const FounderDashboard: React.FC = () => {
 
   if (!startupId) {
     return (
-      <DashboardShell key="empty" title="Founder Dashboard" subtitle="Good morning! Let's set up your workspace.">
+      <DashboardShell 
+        key="empty" 
+        title="Founder Dashboard" 
+        subtitle="Good morning! Let's set up your workspace."
+        action={
+          <Button onClick={() => window.location.href = '/startups'}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Startup
+          </Button>
+        }
+      >
         <div className="flex flex-col items-center justify-center h-96 max-w-lg mx-auto text-center space-y-4">
           <div className="w-16 h-16 rounded-2xl bg-neutral-100 flex items-center justify-center text-neutral-400 mb-4">
             <TrendingUp className="w-8 h-8" />
@@ -146,12 +156,6 @@ export const FounderDashboard: React.FC = () => {
       key="main"
       title="Founder Dashboard"
       subtitle="Good morning! Here's what's happening with your startup today."
-      action={
-        <Button onClick={() => window.location.href = '/startups'}>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Startup
-        </Button>
-      }
     >
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
@@ -257,7 +261,7 @@ export const FounderDashboard: React.FC = () => {
                             "text-sm font-bold",
                             tx.type === 'revenue' ? "text-green-600" : "text-neutral-900"
                           )}>
-                            {tx.type === 'revenue' ? '+' : '-'}{currencySymbol}{Math.abs(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                            {tx.type === 'revenue' ? '+' : '-'}{tx.currency === 'INR' ? '₹' : '$'}{Math.abs(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                           </p>
                         </td>
                       </tr>
@@ -287,7 +291,7 @@ export const FounderDashboard: React.FC = () => {
                         "text-sm font-bold",
                         tx.type === 'revenue' ? "text-green-600" : "text-neutral-900"
                       )}>
-                        {tx.type === 'revenue' ? '+' : '-'}{currencySymbol}{Math.abs(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        {tx.type === 'revenue' ? '+' : '-'}{tx.currency === 'INR' ? '₹' : '$'}{Math.abs(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </p>
                     </div>
                     <p className="text-[10px] text-neutral-400 font-medium">{tx.date}</p>

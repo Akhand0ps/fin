@@ -25,6 +25,7 @@ export type Startup = {
   funding_progress?: number;
   funding_requests?: any[];
   funding?: number;
+  cash_balance?: number;
   created_at: string;
   updated_at: string;
 };

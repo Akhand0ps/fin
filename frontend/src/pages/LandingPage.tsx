@@ -111,7 +111,7 @@ export const LandingPage: React.FC = () => {
               Start Building Free
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
-            <Button variant="outline" size="lg" className="px-10">
+            <Button variant="outline" size="lg" className="hidden md:inline-flex px-10" onClick={() => window.location.href = '/demo'}>
               View Demo Dashboard
             </Button>
           </motion.div>
