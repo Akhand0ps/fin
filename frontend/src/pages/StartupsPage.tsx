@@ -32,6 +32,7 @@ const startupSchema = z.object({
   website: z.string().url().optional().or(z.literal('')),
   description: z.string().optional(),
   currency: z.enum(['USD', 'INR']),
+  cash_balance: z.string().optional(),
 });
 
 type StartupForm = z.infer<typeof startupSchema>;
@@ -42,13 +43,15 @@ export const StartupsPage: React.FC = () => {
   const [selectedStage, setSelectedStage] = useState<Startup['stage']>('Seed');
   const queryClient = useQueryClient();
 
-  const { control, handleSubmit, setValue } = useForm<StartupForm>({
+  const { control, handleSubmit, setValue, watch } = useForm<StartupForm>({
     resolver: zodResolver(startupSchema),
     defaultValues: {
       stage: 'Seed',
       currency: 'USD'
     }
   });
+
+  const currentCurrency = watch('currency');
 
   // Fetch Startups
   const { data: startups = [], isLoading } = useQuery({
@@ -58,7 +61,11 @@ export const StartupsPage: React.FC = () => {
 
   // Create Startup Mutation
   const createMutation = useMutation({
-    mutationFn: (data: StartupForm) => startupService.create({ ...data, stage: selectedStage }),
+    mutationFn: (data: StartupForm) => startupService.create({
+      ...data,
+      stage: selectedStage,
+      cash_balance: data.cash_balance ? parseFloat(data.cash_balance) : 0,
+    }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['startups'] });
       toast.success('Startup registered successfully!');
@@ -185,7 +192,7 @@ export const StartupsPage: React.FC = () => {
                           onClick={() => setValue('currency', c as 'USD' | 'INR')}
                           className={cn(
                             "px-4 py-3 rounded-xl border text-xs font-bold transition-all duration-200 cursor-pointer",
-                            control._formValues.currency === c 
+                            currentCurrency === c 
                               ? "bg-neutral-900 border-neutral-900 text-white shadow-lg" 
                               : "bg-neutral-50 border-neutral-100 text-neutral-500 hover:border-neutral-200"
                           )}
@@ -235,6 +242,21 @@ export const StartupsPage: React.FC = () => {
                   label="Mission Statement"
                   placeholder="Describe your vision in one sentence..."
                 />
+
+                <div className="space-y-1">
+                  <FormInput
+                    control={control}
+                    name="cash_balance"
+                    label="Current Cash Balance"
+                    placeholder="e.g. 500000"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                  />
+                  <p className="text-[10px] text-neutral-400 leading-relaxed">
+                    Your current bank/account balance in your base currency. Used to calculate accurate runway — this is never shared publicly.
+                  </p>
+                </div>
 
                 <div className="pt-4 flex gap-4">
                   <Button type="submit" isLoading={createMutation.isPending} className="flex-1">

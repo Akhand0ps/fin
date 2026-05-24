@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { LandingPage } from '../pages/LandingPage';
+import { DemoDashboardPage } from '../pages/DemoDashboardPage';
 import { LoginPage } from '../pages/LoginPage';
 import { RegisterPage } from '../pages/RegisterPage';
 import { FounderDashboard } from '../pages/FounderDashboard';
@@ -51,6 +52,7 @@ const AnimatedRoutes = () => {
       <Routes location={location} key={location.pathname}>
         {/* Public Routes */}
         <Route path="/" element={<PageTransition><LandingPage /></PageTransition>} />
+        <Route path="/demo" element={<PageTransition><DemoDashboardPage /></PageTransition>} />
         <Route path="/login" element={<PageTransition><LoginPage /></PageTransition>} />
         <Route path="/register" element={<PageTransition><RegisterPage /></PageTransition>} />
 
