@@ -348,7 +348,8 @@ export const LandingPage: React.FC = () => {
                 description: 'Perfect for early-stage founders building their first MVP.',
                 features: ['1 Startup Profile', 'Basic Burn Tracking', 'Manual Data Entry', 'Community Support'],
                 cta: 'Start Free',
-                popular: false
+                popular: false,
+                isFree: true
               },
               {
                 name: 'Founder',
@@ -356,7 +357,8 @@ export const LandingPage: React.FC = () => {
                 description: 'Advanced tools for scaling startups and fund-raising.',
                 features: ['Everything in Starter', 'Automated Bank Sync', 'Investor-Ready Reports', 'Priority Support'],
                 cta: 'Go Pro',
-                popular: true
+                popular: true,
+                isFree: false
               },
               {
                 name: 'Enterprise',
@@ -364,7 +366,8 @@ export const LandingPage: React.FC = () => {
                 description: 'Tailored solutions for high-growth ventures and VC firms.',
                 features: ['Unlimited Startups', 'Advanced RBAC', 'API Access', 'Dedicated Account Manager'],
                 cta: 'Contact Sales',
-                popular: false
+                popular: false,
+                isFree: false
               }
             ].map((plan, i) => (
               <motion.div
@@ -382,7 +385,8 @@ export const LandingPage: React.FC = () => {
                 )}
                 <Card className={cn(
                   "h-full p-10 flex flex-col transition-all duration-500",
-                  plan.popular ? "border-neutral-900 shadow-2xl scale-105" : "border-neutral-100"
+                  plan.popular ? "border-neutral-900 shadow-2xl scale-105" : "border-neutral-100",
+                  !plan.isFree && "opacity-75"
                 )}>
                   <div className="mb-8">
                     <h3 className="text-xl font-bold text-neutral-900 mb-2">{plan.name}</h3>
@@ -405,10 +409,20 @@ export const LandingPage: React.FC = () => {
                   <Button 
                     variant={plan.popular ? 'primary' : 'outline'} 
                     className="w-full font-bold"
-                    onClick={() => window.location.href = '/register'}
+                    disabled={!plan.isFree}
+                    onClick={() => {
+                      if (plan.isFree) {
+                        window.location.href = '/register';
+                      }
+                    }}
                   >
                     {plan.cta}
                   </Button>
+                  {!plan.isFree && (
+                    <p className="text-xs text-center text-neutral-400 mt-2 font-medium">
+                      We will roll this feature soon
+                    </p>
+                  )}
                 </Card>
               </motion.div>
             ))}

@@ -224,17 +224,19 @@ export const SettingsPage: React.FC = () => {
 
             {activeSection === 'billing' && (
               <Card>
-                <CardHeader title="Current Plan" subtitle="You are currently on the Pro plan." />
+                <CardHeader title="Current Plan" subtitle="You are currently on the Starter (Free) plan." />
                 <CardContent className="p-8 space-y-6">
                   <div className="p-6 bg-neutral-900 rounded-2xl text-white">
                     <div className="flex justify-between items-start mb-6">
                       <div>
                         <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Monthly Subscription</p>
-                        <p className="text-3xl font-bold">$49.00 / month</p>
+                        <p className="text-3xl font-bold">$0.00 / month</p>
                       </div>
                       <span className="px-2 py-1 bg-white/10 rounded text-[10px] font-bold uppercase">Active</span>
                     </div>
-                    <Button variant="secondary" size="sm" className="w-full">Manage Subscription</Button>
+                    <Button variant="secondary" size="sm" className="w-full" disabled>
+                      Upgrade (Founder & Enterprise Coming Soon)
+                    </Button>
                   </div>
                   <div className="space-y-4">
                     <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Payment Method</p>
