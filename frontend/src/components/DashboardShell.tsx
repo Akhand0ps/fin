@@ -8,6 +8,7 @@ interface DashboardShellProps {
   children: React.ReactNode;
 }
 
+
 /**
  * Standard container for dashboard pages.
  * Provides consistent heading, spacing, and transition effects.
@@ -40,6 +41,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
             transition={{ duration: 0.5, delay: 0.1 }}
             className="shrink-0"
           >
+          {/* Action Button */}
             {action}
           </motion.div>
         )}
